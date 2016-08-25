@@ -12,6 +12,7 @@ TEST_BOARD = """\
 . 9 . 3 . . 5 2 .
 . . 2 4 . . 6 . ."""
 
+
 class Error(Exception): pass
 class ImpossibleTileError(Error): pass
 
@@ -35,7 +36,7 @@ def iterate_board(board):
             else:
                 val = None
 
-            yield (val, coord)
+            yield (coord, val)
 
 
 class Board(object):
@@ -44,15 +45,19 @@ class Board(object):
     COLUMNS = {k: set() for k in DIGITS}
     BOXES = {k: set() for k in DIGITS}
 
-    def __init__(self):
-        for (val, coord) in iterate_board(TEST_BOARD):
-            self.setup_tile(val, coord)
+    def __init__(self, board=None):
+        if board is not None:
+            for (coord, val) in iterate_board(board):
+                self.create_tile(coord, val)
 
-    def setup_tile(self, val, coord):
+    def create_tile(self, coord, val=None):
         tile = Tile(coord)
         if val is not None:
             tile.set(val)
 
+        self.add_tile(tile)
+
+    def add_tile(self, tile):
         Board.ROWS[tile.row].add(tile)
         Board.COLUMNS[tile.column].add(tile)
         Board.BOXES[tile.box].add(tile)
@@ -73,6 +78,9 @@ class Board(object):
 
     def neighbors_box(self, tile):
         return Board.BOXES[tile.box] - set([tile])
+
+    def render(self):
+        pass
 
 
 class Tile(object):
@@ -163,6 +171,24 @@ class Tile(object):
         elif self.order == 0:
             raise ImpossibleTileError("Tile {} has no options left after removing {}!".format(self, discarded))
 
+    def render(self):
+        if self.value is not None:
+            return "       \n" + \
+                   " ( {} ) \n".format(self.value) + \
+                   "       "
+        else:
+            return "{}\n{}\n{}".format(
+                " {} {} {} ".format(1 if 1 in self.options else ' ',
+                                    2 if 2 in self.options else ' ',
+                                    3 if 3 in self.options else ' '),
+                " {} {} {} ".format(4 if 4 in self.options else ' ',
+                                    5 if 5 in self.options else ' ',
+                                    6 if 6 in self.options else ' '),
+                " {} {} {} ".format(7 if 7 in self.options else ' ',
+                                    8 if 8 in self.options else ' ',
+                                    9 if 9 in self.options else ' ')
+            )
+
     def __repr__(self):
         return "<Tile {:x}: {}, {}, {}>".format(id(self), self.coord, self._value, self.options)
 
@@ -170,14 +196,23 @@ class Tile(object):
         return id(self)
 
 
-T = Tile((3, 5))
-print T
-print; print Board.ROWS
-print; print Board.COLUMNS
-print; print Board.BOXES
-print; print Tile.REMAINING
-T.discard_options(set([1,2,9]))
-print; print T
-print; print Tile.REMAINING
+def main():
+    B = Board()
+    T = Tile((3, 5))
+    B.add_tile(T)
+    print T
+    print; print Board.ROWS
+    print; print Board.COLUMNS
+    print; print Board.BOXES
+    print; print Tile.REMAINING
+    T.discard_options(set([1, 2, 9]))
+    print; print T
+    print; print Tile.REMAINING
 
-B = Board()
+    print T.render()
+
+    B = Board(TEST_BOARD)
+    print Tile.get((2, 2)).render()
+
+if __name__ == '__main__':
+    main()
