@@ -1,0 +1,3 @@
+[submodule "BlitMaster"]
+	path = BlitMaster
+	url = git@github.com:MattCCS/BlitMaster.git
