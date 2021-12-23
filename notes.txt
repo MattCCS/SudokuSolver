@@ -1,0 +1,3 @@
+https://en.wikipedia.org/wiki/Glossary_of_Sudoku#Automorphic_Sudokus
+
+http://hodoku.sourceforge.net/en/tech_singles.php
